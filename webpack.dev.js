@@ -16,7 +16,8 @@ module.exports = {
 	devServer: {
 		contentBase: './',
 		progress: true,
-	proxy: {
+		disableHostCheck:true,
+		proxy: {
 		'/': {
 			target: 'http://11.205.243.80:18080',
 			changeOrigin: false
@@ -53,6 +54,15 @@ module.exports = {
 					"style-loader",
 					"css-loader",
 					"sass-loader"
+				]
+			},
+			{
+				test: /\.(png|jpe?g|gif)$/i,
+				use: [
+					{
+						loader: 'url-loader',
+						options: {}
+					}
 				]
 			}
 		]

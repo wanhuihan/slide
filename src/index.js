@@ -9,7 +9,8 @@ let slideCaptcha = {
 		defaultPoint: {},
 		getImageUrl: '',
 		validCheck: '',
-		randomNo: parseInt(Math.random() * 10000000)
+		randomNo: parseInt(Math.random() * 10000000),
+		id: ''
 	},
 	// 
 	init: function(obj) {
@@ -23,6 +24,8 @@ let slideCaptcha = {
 		this.obj.defaultPoint.x = obj.defaultPoint.x;
 		this.obj.defaultPoint.y = obj.defaultPoint.y;
 		this.obj.slideBox = document.getElementById(id);
+		this.obj.id = obj.id;
+
 		// 
 		this.getImage(this.obj.randomNo).then(data => {
 			// console.log(data.data);
@@ -35,7 +38,10 @@ let slideCaptcha = {
 
 		}).then( data => {
 
+			// this.slideBgDraw(data);
+			this.slideBgBoxCreate();
 			this.slideBgDraw(data);
+			this.refreshImageBg()
 			return this.imageLoad(spiritUrl)
 
 		}).then( data => {
@@ -50,7 +56,7 @@ let slideCaptcha = {
 		})
 		// 
 	},
-	// 
+	// 全局获取图片的ajax方法
 	imageLoad: function(url) {
 		return new Promise((resolve, reject) => {
   		let image = new Image();
@@ -60,30 +66,87 @@ let slideCaptcha = {
   		}
 		})
 	},
-	// 
-	slideBgDraw: function(image) {
-		// 
+	// 创建滑动背景图div
+	slideBgBoxCreate: function() {
 		let slideBg = document.createElement('div')
 		slideBg.setAttribute('id', 'slideBg');
-		slideBg.appendChild(image);
-		// 
-		this.obj.slideBox.appendChild(slideBg)
+		this.obj.slideBox.appendChild(slideBg);
 	},
-	// 
-	slideSpiritDraw: function (image) {
-		let spiritDiv = document.createElement('span');
-		spiritDiv.setAttribute('id', 'slideSpirit');
-		// 
-		spiritDiv.appendChild(image);
-		// 
-		spiritDiv.style.left = this.obj.defaultPoint.x + 'px' || 0;
-		// 
-		spiritDiv.style.top = this.obj.defaultPoint.y + 'px';
+	// 创建滑动背景
+	slideBgDraw: function(image) {
 
-		let slideBg = document.getElementById('slideBg');
-		slideBg.appendChild(spiritDiv)
+		let bg = document.getElementById('slideBoxImage');
+		if (bg) {
+			bg.appendChild(image)
+			bg.replaceChild(image, bg.children[0])
+		} else {
+			
+			let slideBg = document.createElement('div')
+			slideBg.setAttribute('id', 'slideBoxImage');
+			slideBg.appendChild(image);
+			// 
+			document.getElementById('slideBg').appendChild(slideBg)	;
+			//
+			this.slideContainerSizeSet(image.clientWidth, image.clientHeight); 
+		}
 	},
-	// 
+	// 刷新滑动背景图及拼图精灵
+	refreshImageBg: function() {
+		// 
+		console.log(this.obj.defaultPoint)
+		let img = document.getElementById('slideBoxImage').children[0];	
+		let _that = this;
+		let reload = document.createElement('span');
+		reload.setAttribute('id',  'imageReload');
+		// 
+		let spiritUrl, slideBgUrl;
+		reload.addEventListener('click', function() {
+			_that.obj.randomNo = parseInt(Math.random() * 10000000);
+			_that.getImage(_that.obj.randomNo).then(data => {
+				// console.log(data.data);
+				spiritUrl = data.data.newImage;
+				slideBgUrl = data.data.oriCopyImage;
+				_that.obj.defaultPoint.x = 0;
+				_that.obj.defaultPoint.y = data.data.yPoint;
+				// 
+				return _that.imageLoad(slideBgUrl);
+
+			}).then( data => {
+
+				_that.slideBgDraw(data);
+				return _that.imageLoad(spiritUrl)
+			}).then( data => {
+				// 
+				console.log(_that.obj.defaultPoint, slideBgUrl)
+				_that.slideSpiritDraw(data);
+			})
+		})
+		document.getElementById('slideBg').appendChild(reload)
+		// document.getElementById('')
+	},
+	// 滑动精灵图片绘制
+	slideSpiritDraw: function (image) {
+		let slideSpirit = document.getElementById('slideSpirit');
+		if (slideSpirit) {
+			slideSpirit.replaceChild(image, slideSpirit.children[0]);
+			slideSpirit.style.left = this.obj.defaultPoint.x + 'px' || 0;
+			slideSpirit.style.top = this.obj.defaultPoint.y + 'px';
+
+		} else {
+			let spiritDiv = document.createElement('span');
+			spiritDiv.setAttribute('id', 'slideSpirit');
+			// 
+			spiritDiv.appendChild(image);
+			// 
+			spiritDiv.style.left = this.obj.defaultPoint.x + 'px' || 0;
+			// 
+			spiritDiv.style.top = this.obj.defaultPoint.y + 'px';
+
+			let slideBg = document.getElementById('slideBg');
+			slideBg.appendChild(spiritDiv)			
+		}
+	},
+	// 滑动条创建
 	slidebarCreate: function() {
 		// 
 		let slidebar = document.getElementById('slidebar');
@@ -96,10 +159,11 @@ let slideCaptcha = {
 			slideCircle.setAttribute('id', 'slideBarCircle');
 			bar.appendChild(slideCircle);
 			// 
-			this.obj.slideBox.appendChild(bar)			
+			this.obj.slideBox.appendChild(bar)		
+			// 
 		}
 	},
-	// 
+	// 事件初始化
 	dragEventInit: function() {
 		// 
 		let _that = this;
@@ -140,15 +204,19 @@ let slideCaptcha = {
 			// 
 			_that.validCheck(dragX).then (data => {
 				if (data.status === 0) {
-					// 
 					document.getElementById('successBg').classList.add('success');
-					// 
-					// document.getElementById('slideBg').classList.add('success')
-					// 
 					let removeStatus = setTimeout(function() {
 						document.getElementById('successBg').classList.remove('success')
-						clearTimeout(removeStatus)
-					},1000)
+						clearTimeout(removeStatus);
+						document.getElementById('successText').classList.add('success');
+						document.querySelector('.success-text').innerHTML = '';
+						slideCircle.style.left = (document.getElementById('slideBar').clientWidth - 40) + 'px';
+						// document.getElementById('slideBg').remove()		
+						_that.obj.slideBox.removeChild(document.getElementById('slideBg'))				
+					},1000);
+					// 
+					slideCircle.removeEventListener('mousedown', mouseDown);
+					// 
 				} else {
 					resetPoint()
 				}
@@ -160,14 +228,15 @@ let slideCaptcha = {
 			slideSpirit.style.left = 0;
 		}
 	},
-
-	mousemoveEvent: function(e) {
-
-	},
 	// 
 	ajaxCall: function() {
 
 	},
+	// 
+	slideContainerSizeSet: function (w, h) {
+		this.obj.slideBox.style.width = w + 'px';
+	},
+	// 
 	getImage: function(params) {
 		return new Promise( (resolve, reject) => {
 			let xhr = new XMLHttpRequest();
@@ -202,17 +271,22 @@ let slideCaptcha = {
 	successStatusAdd: function() {
 		let successStatus = document.createElement('div');
 		successStatus.setAttribute('id', 'successBg');
-		// successStatus.setAttribute('class', 'success-bg');
+		successStatus.innerHTML = `
+			<span>验证成功</span>
+		`;
 		successStatus.style.height = document.getElementById('slideBg').clientHeight + 'px'
 		document.getElementById('slideBg').appendChild(successStatus);
-		// 
-		// console.log(document.getElementById('slideBg').clientHeight)
 		let successText = document.createElement('div');
 		successText.setAttribute('id', 'successText');
+		successText.innerHTML = `
+			<span class="success-arrow"></span>
+			<span class="success-text"> 拖动滑块完成验证 </span>
+			<span class="success-arrow"></span>
+		`;
 		document.getElementById('slideBar').appendChild(successText)
- 		// successText.setAttribute('c')
+	},
+	// 
 
-	}
 }
 // 
 window.onload = function() {
