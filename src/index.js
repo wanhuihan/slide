@@ -2,7 +2,7 @@
 // 
 import './scss/index.scss';
 
-let slideCaptcha = {
+export const slideCaptcha = {
 	// 
 	obj: {
 		slideBox: null,
@@ -25,7 +25,8 @@ let slideCaptcha = {
 		this.obj.defaultPoint.y = obj.defaultPoint.y;
 		this.obj.slideBox = document.getElementById(id);
 		this.obj.id = obj.id;
-
+		// 
+		this.obj.slideBox.classList.add('slideCaptcha')
 		// 
 		this.getImage(this.obj.randomNo).then(data => {
 			// console.log(data.data);
@@ -69,23 +70,27 @@ let slideCaptcha = {
 	// 创建滑动背景图div
 	slideBgBoxCreate: function() {
 		let slideBg = document.createElement('div')
-		slideBg.setAttribute('id', 'slideBg');
+		slideBg.setAttribute('id', this.obj.id + '_slideBg');
+		//
+		slideBg.classList.add('slideBg'); 
+		//
 		this.obj.slideBox.appendChild(slideBg);
 	},
 	// 创建滑动背景
 	slideBgDraw: function(image) {
 
-		let bg = document.getElementById('slideBoxImage');
+		let bg = document.getElementById( this.obj.id + '_slideBoxImage');
 		if (bg) {
 			bg.appendChild(image)
 			bg.replaceChild(image, bg.children[0])
 		} else {
 			
 			let slideBg = document.createElement('div')
-			slideBg.setAttribute('id', 'slideBoxImage');
+			slideBg.setAttribute('id', this.obj.id + '_slideBoxImage');
+			slideBg.classList.add('slideBoxImage')
 			slideBg.appendChild(image);
 			// 
-			document.getElementById('slideBg').appendChild(slideBg)	;
+			document.getElementById(this.obj.id + '_slideBg').appendChild(slideBg)	;
 			//
 			this.slideContainerSizeSet(image.clientWidth, image.clientHeight); 
 		}
@@ -93,11 +98,12 @@ let slideCaptcha = {
 	// 刷新滑动背景图及拼图精灵
 	refreshImageBg: function() {
 		// 
-		console.log(this.obj.defaultPoint)
-		let img = document.getElementById('slideBoxImage').children[0];	
+		// console.log(this.obj.defaultPoint)
+		let img = document.getElementById(this.obj.id + '_slideBoxImage').children[0];	
 		let _that = this;
 		let reload = document.createElement('span');
-		reload.setAttribute('id',  'imageReload');
+		reload.setAttribute('id',  this.obj.id + '_imageReload');
+		reload.classList.add('imageReload')
 		// 
 		let spiritUrl, slideBgUrl;
 		reload.addEventListener('click', function() {
@@ -121,12 +127,12 @@ let slideCaptcha = {
 				_that.slideSpiritDraw(data);
 			})
 		})
-		document.getElementById('slideBg').appendChild(reload)
+		document.getElementById(this.obj.id + '_slideBg').appendChild(reload)
 		// document.getElementById('')
 	},
 	// 滑动精灵图片绘制
 	slideSpiritDraw: function (image) {
-		let slideSpirit = document.getElementById('slideSpirit');
+		let slideSpirit = document.getElementById(this.obj.id + '_slideSpirit');
 		if (slideSpirit) {
 			slideSpirit.replaceChild(image, slideSpirit.children[0]);
 			slideSpirit.style.left = this.obj.defaultPoint.x + 'px' || 0;
@@ -134,29 +140,31 @@ let slideCaptcha = {
 
 		} else {
 			let spiritDiv = document.createElement('span');
-			spiritDiv.setAttribute('id', 'slideSpirit');
+			spiritDiv.setAttribute('id', this.obj.id + '_slideSpirit');
 			// 
+			spiritDiv.classList.add('slideSpirit');
 			spiritDiv.appendChild(image);
 			// 
 			spiritDiv.style.left = this.obj.defaultPoint.x + 'px' || 0;
 			// 
 			spiritDiv.style.top = this.obj.defaultPoint.y + 'px';
 
-			let slideBg = document.getElementById('slideBg');
+			let slideBg = document.getElementById(this.obj.id + '_slideBg');
 			slideBg.appendChild(spiritDiv)			
 		}
 	},
 	// 滑动条创建
 	slidebarCreate: function() {
 		// 
-		let slidebar = document.getElementById('slidebar');
+		let slidebar = document.getElementById(this.obj.id + '_slideBar');
 		if (!slidebar) {
 			let bar = document.createElement('div');
-			bar.setAttribute('id', "slideBar");
-			bar.setAttribute('class', 'slidebar');
+			bar.setAttribute('id', this.obj.id + '_slideBar');
+			bar.setAttribute('class', 'slideBar');
 			// 
 			let slideCircle = document.createElement('span');
-			slideCircle.setAttribute('id', 'slideBarCircle');
+			slideCircle.setAttribute('id', this.obj.id + '_slideBarCircle');
+			slideCircle.classList.add('slideBarCircle')
 			bar.appendChild(slideCircle);
 			// 
 			this.obj.slideBox.appendChild(bar)		
@@ -168,8 +176,8 @@ let slideCaptcha = {
 		// 
 		let _that = this;
 		// 
-		let slideCircle = document.getElementById('slideBarCircle');
-		let slideSpirit = document.getElementById('slideSpirit');
+		let slideCircle = document.getElementById(this.obj.id + '_slideBarCircle');
+		let slideSpirit = document.getElementById(this.obj.id + '_slideSpirit');
 		let startX;
 		let dragX;
 		// 
@@ -183,7 +191,7 @@ let slideCaptcha = {
 		}
 		//
 		function mouseMove (e) {
-			if (e.clientX - startX > 0 && e.clientX - startX < document.getElementById('slideBg').clientWidth - document.getElementById('slideSpirit').clientWidth + 5) {
+			if (e.clientX - startX > 0 && e.clientX - startX < document.getElementById(_that.obj.id + '_slideBg').clientWidth - document.getElementById(_that.obj.id + '_slideSpirit').clientWidth + 5) {
 				if (startX) {
 					moveCalc(slideCircle, startX, e.clientX);
 					// 
@@ -204,15 +212,15 @@ let slideCaptcha = {
 			// 
 			_that.validCheck(dragX).then (data => {
 				if (data.status === 0) {
-					document.getElementById('successBg').classList.add('success');
+					document.getElementById(_that.obj.id + '_successBg').classList.add('success');
 					let removeStatus = setTimeout(function() {
-						document.getElementById('successBg').classList.remove('success')
+						document.getElementById(_that.obj.id + '_successBg').classList.remove('success')
 						clearTimeout(removeStatus);
-						document.getElementById('successText').classList.add('success');
+						document.getElementById(_that.obj.id + '_successText').classList.add('success');
 						document.querySelector('.success-text').innerHTML = '';
-						slideCircle.style.left = (document.getElementById('slideBar').clientWidth - 40) + 'px';
+						slideCircle.style.left = (document.getElementById(_that.obj.id + '_slideBar').clientWidth - 40) + 'px';
 						// document.getElementById('slideBg').remove()		
-						_that.obj.slideBox.removeChild(document.getElementById('slideBg'))				
+						_that.obj.slideBox.removeChild(document.getElementById(_that.obj.id + '_slideBg'))				
 					},1000);
 					// 
 					slideCircle.removeEventListener('mousedown', mouseDown);
@@ -270,35 +278,23 @@ let slideCaptcha = {
 	// 
 	successStatusAdd: function() {
 		let successStatus = document.createElement('div');
-		successStatus.setAttribute('id', 'successBg');
+		successStatus.setAttribute('id', this.obj.id + '_successBg');
+		successStatus.classList.add('successBg');
 		successStatus.innerHTML = `
 			<span>验证成功</span>
 		`;
-		successStatus.style.height = document.getElementById('slideBg').clientHeight + 'px'
-		document.getElementById('slideBg').appendChild(successStatus);
+		successStatus.style.height = document.getElementById(this.obj.id + '_slideBg').clientHeight + 'px'
+		document.getElementById(this.obj.id + '_slideBg').appendChild(successStatus);
 		let successText = document.createElement('div');
-		successText.setAttribute('id', 'successText');
+		successText.setAttribute('id', this.obj.id + '_successText');
+		successText.classList.add('successText');
 		successText.innerHTML = `
 			<span class="success-arrow"></span>
 			<span class="success-text"> 拖动滑块完成验证 </span>
 			<span class="success-arrow"></span>
 		`;
-		document.getElementById('slideBar').appendChild(successText)
+		document.getElementById(this.obj.id + '_slideBar').appendChild(successText)
 	},
 	// 
 
-}
-// 
-window.onload = function() {
-	slideCaptcha.init({
-		id: 'slideCaptcha',
-		spiritUrl: '',
-		slideBgUrl: '',
-		defaultPoint: {
-			x: 0,
-			y: 0
-		},
-		validCheck: '/checkPoint',
-		getResource: '/getVerifyImg'
-	})     	
 }

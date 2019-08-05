@@ -9,8 +9,8 @@ module.exports = {
 	// entry: path.resolve(__dirname, 'src/index.js'),
 	// 
 	output: {
-		filename: 'build.js',
-		path: path.resolve(__dirname, 'build')
+		filename: 'index.js',
+		path: path.resolve(__dirname, 'slideCaptcha')
 	},
 	// 
 	devServer: {
@@ -27,7 +27,7 @@ module.exports = {
 	plugins: [
 		new HtmlWebpackPlugin({
 			template: './index.html'
-		}),        
+		}),    
 		new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output
             // both options are optional
@@ -51,8 +51,14 @@ module.exports = {
 			{
 				test: /\.scss$/,
 				use: [
-					"style-loader",
-					"css-loader",
+					// "style-loader",
+					{
+						loader: MiniCssExtractPlugin.loader,
+						options: {
+							publicPath: './dist',
+						}
+					},
+					'css-loader',
 					"sass-loader"
 				]
 			},
