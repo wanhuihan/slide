@@ -4,7 +4,7 @@
 }*/
 .slideCaptcha {
 	position: relative;
-	// margin-top: 200px;
+	margin-top: 200px;
 }
 //
 .slideBar {
@@ -76,6 +76,7 @@
 	font-size: 0;
 	position: absolute;
 	top: -135px;	
+	//display: none;
 	.slideSpirit {
 		position: absolute;
 	}
@@ -109,4 +110,10 @@
 		right:5px;
 		z-index: 1;
 	}
+}
+.show {
+	display: block;
+}
+.hide {
+	display: none;
 }

@@ -3,7 +3,8 @@
 	height: 100%;
 }*/
 .slideCaptcha {
-  position: relative; }
+  position: relative;
+  margin-top: 200px; }
 
 .slideBar {
   position: relative;
@@ -93,4 +94,10 @@
     top: 5px;
     right: 5px;
     z-index: 1; }
+
+.show {
+  display: block; }
+
+.hide {
+  display: none; }
 
