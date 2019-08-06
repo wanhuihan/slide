@@ -294,14 +294,7 @@ SlideCaptcha.prototype.slideContainerSizeSet = function (w, h) {
 	this.slideBox.style.width = w + 'px';
 }
 
-new SlideCaptcha({
-	id: 'slideCaptcha',
-	spiritUrl: '',
-	slideBgUrl: '',
-	defaultPoint: {
-		x: 0,
-		y: 0
-	},
-	validCheck: '/checkPoint',
-	getResource: '/getVerifyImg'
-})     
+export const slideCaptcha = function(obj) {
+	new SlideCaptcha(obj)
+}
+     
