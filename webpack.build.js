@@ -4,13 +4,14 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
 	// 
-	mode: 'production',
+	mode: 'development',
 	entry:  ["@babel/polyfill", path.resolve(__dirname, 'src/index.js')],
 	// entry: path.resolve(__dirname, 'src/index.js'),
 	// 
 	output: {
 		filename: 'index.js',
-		path: path.resolve(__dirname, 'slideCaptcha')
+		path: path.resolve(__dirname, 'slideCaptcha'),
+		publicPath: '/'
 	},
 	// 
 	devServer: {
@@ -55,7 +56,8 @@ module.exports = {
 					{
 						loader: MiniCssExtractPlugin.loader,
 						options: {
-							publicPath: './dist',
+							publicPath: './',
+							filename: 'style/index.css'
 						}
 					},
 					'css-loader',
@@ -67,7 +69,10 @@ module.exports = {
 				use: [
 					{
 						loader: 'url-loader',
-						options: {}
+						options: {
+							limit: 50,
+							outputPath: './images'
+						}
 					}
 				]
 			}

@@ -1,5 +1,5 @@
 // 
-import './scss/index.scss';
+// import './scss/index.scss';
 // 
 function SlideCaptcha(obj) {
 	this.slideBox = null;
@@ -293,8 +293,10 @@ SlideCaptcha.prototype.validCheckFn = function(pointX) {
 SlideCaptcha.prototype.slideContainerSizeSet = function (w, h) {
 	this.slideBox.style.width = w + 'px';
 }
-
-export const slideCaptcha = function(obj) {
+// 
+function slideCaptcha(obj) {
 	new SlideCaptcha(obj)
 }
+
+export default slideCaptcha;
      
