@@ -1,7 +1,99 @@
 // import 'babel-polyfill';
 // 
 import './scss/index.scss';
+// 
+function SlideCaptcha(obj) {
+	this.slideBox = null;
+	this.defaultPoint = {};
+	this.getImageUrl = ''
+	this.validCheck = ''
+	this.randomNo = parseInt(Math.random() * 10000000)
+	this.id = obj.id;
+	// 
+	this.init(obj)
+}
+// 
 
+SlideCaptcha.prototype.init = function(obj) {
+	// 
+	this.getImageUrl = obj.getResource;
+	this.validCheck = obj.validCheck;
+	this.defaultPoint.x = obj.defaultPoint.x;
+	this.defaultPoint.y = obj.defaultPoint.y;
+	this.slideBox = document.getElementById(obj.id);
+	this.id = obj.id;
+	// 
+	this.slideBox.classList.add('slideCaptcha')
+	// 
+	this.getImage(this.randomNo).then(data => {
+		// console.log(data.data);
+		this.spiritUrl = data.data.newImage;
+		this.slideBgUrl = data.data.oriCopyImage;
+		this.defaultPoint.x = 0;
+		this.defaultPoint.y = data.data.yPoint;
+		// 
+		return this.imageLoad(this.slideBgUrl);
+
+	}).then ( data => {
+
+		this.slideBgDraw(data);
+		// this.slideBgBoxCreate();
+		// this.slideBgDraw(data);
+		// this.refreshImageBg()
+		return this.imageLoad(this.spiritUrl)		
+	}).then( data => {
+		console.log(data)
+	})
+	// 
+	console.log(this)
+}
+// 
+SlideCaptcha.prototype.getImage = function(parmas) {
+
+	let params = parmas;
+	return new Promise( (resolve, reject) => {
+		let xhr = new XMLHttpRequest();
+		xhr.open('post', this.getImageUrl, true);	
+		xhr.setRequestHeader('Content-Type','application/json');	
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+				let res = JSON.parse(xhr.response)
+				resolve(res);
+			}
+		}		
+		xhr.send(JSON.stringify({flowId: params}))	
+	})	
+}
+// 全局获取图片的ajax方法
+SlideCaptcha.prototype.imageLoad = function(url) {
+	return new Promise((resolve, reject) => {
+		let image = new Image();
+		image.src = 'data:image/png;base64,' + url;
+		image.onload = function() {
+			resolve(image)
+		}
+	})
+}
+// 
+SlideCaptcha.prototype.slideBgDraw = function(image) {
+
+	let bg = document.getElementById( this.id + '_slideBoxImage');
+	if (bg) {
+		bg.appendChild(image)
+		bg.replaceChild(image, bg.children[0])
+	} else {
+		let slideBg = document.createElement('div')
+		slideBg.setAttribute('id', this.id + '_slideBoxImage');
+		slideBg.classList.add('slideBoxImage')
+		slideBg.appendChild(image);
+		// 
+		// document.getElementById(this.id + '_slideBg').appendChild(slideBg)	;
+		//
+		// this.slideContainerSizeSet(image.clientWidth, image.clientHeight); 
+	}
+}
+
+// 
 export const slideCaptcha = {
 	// 
 	obj: {
@@ -298,3 +390,28 @@ export const slideCaptcha = {
 	// 
 
 }
+
+
+new SlideCaptcha({
+	id: 'slideCaptcha',
+	spiritUrl: '',
+	slideBgUrl: '',
+	defaultPoint: {
+		x: 0,
+		y: 0
+	},
+	validCheck: '/checkPoint',
+	getResource: '/getVerifyImg'
+})     
+
+// slideCaptcha.init({
+// 	id: 'slideCaptcha1',
+// 	spiritUrl: '',
+// 	slideBgUrl: '',
+// 	defaultPoint: {
+// 		x: 0,
+// 		y: 0
+// 	},
+// 	validCheck: '/checkPoint',
+// 	getResource: '/getVerifyImg'
+// }) 
